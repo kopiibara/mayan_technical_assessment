@@ -16,16 +16,23 @@ type TaskStore = {
   loading: boolean;
   search: string;
   status: FilterStatus;
+
+  editingTask: Task | null;
+
   fetchTasks: (params?: {
     search?: string;
     status?: FilterStatus;
   }) => Promise<void>;
+
   createTask: (data: CreateTaskDto) => Promise<void>;
   updateTask: (id: string, data: CreateTaskDto) => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   toggleTask: (id: string) => Promise<void>;
+
   setSearch: (value: string) => void;
   setStatus: (value: FilterStatus) => void;
+
+  setEditingTask: (task: Task | null) => void;
 };
 
 export const useTaskStore = create<TaskStore>((set, get) => ({
@@ -33,17 +40,25 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   loading: false,
   search: "",
   status: "all",
+
+  editingTask: null,
+
   setSearch: (value) => set({ search: value }),
   setStatus: (value) => set({ status: value }),
 
+  setEditingTask: (task) => set({ editingTask: task }),
+
   fetchTasks: async (params) => {
     const currentRequest = ++requestId;
+
     set({ loading: true });
 
     try {
       const state = get();
+
       const search = params?.search ?? state.search;
       const status = params?.status ?? state.status;
+
       const response = await api.get("/tasks", {
         params: { search, status },
       });
@@ -59,6 +74,7 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   createTask: async (data) => {
     const title = data.title?.trim();
     if (!title) return;
+
     await api.post("/tasks", {
       title,
       description: data.description?.trim() || null,

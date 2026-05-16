@@ -57,9 +57,11 @@ export default function TaskCard({ task }: Props) {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setEditingTask(task)}>
-            Edit
-          </DropdownMenuItem>
+          {!task.completed && (
+            <DropdownMenuItem onClick={() => setEditingTask(task)}>
+              Edit
+            </DropdownMenuItem>
+          )}
 
           <DropdownMenuItem
             className="text-red-500"

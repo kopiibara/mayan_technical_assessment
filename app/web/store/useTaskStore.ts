@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { api } from "@/services/api";
 import { Task } from "@/types/task";
+import { toast } from "sonner";
 
 type FilterStatus = "all" | "active" | "completed";
 
@@ -84,7 +85,19 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
   },
 
   updateTask: async (id, data) => {
+    const task = get().tasks.find((t) => t.id === id);
+
+    if (!task) return;
+
+    if (task.completed) {
+      toast.error("Completed tasks cannot be edited");
+      return;
+    }
+
     await api.patch(`/tasks/${id}`, data);
+
+    toast.success("Task updated");
+
     await get().fetchTasks();
   },
 
